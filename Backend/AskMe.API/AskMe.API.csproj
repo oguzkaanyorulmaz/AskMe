@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Sürümler alt katmanların istediği güncel versiyonlara çekildi -->
+    <PackageReference Include="AutoMapper" Version="16.2.0" />
+    <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.10" />
+    <PackageReference Include="MongoDB.Driver" Version="3.9.0" />
+    <PackageReference Include="StackExchange.Redis" Version="3.0.11" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.19.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Eski BlastServer referansları AskMe olarak güncellendi -->
+    <ProjectReference Include="..\AskMe.Application\AskMe.Application.csproj" />
+    <ProjectReference Include="..\AskMe.Domain\AskMe.Domain.csproj" />
+    <ProjectReference Include="..\AskMe.Infrastructure\AskMe.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

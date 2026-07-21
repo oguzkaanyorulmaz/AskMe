@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # Veritabanı
+  askme-mongodb:
+    image: mongo:latest
+    container_name: AskMe_MongoDB
+    ports:
+      - "27017:27017"
+    volumes:
+      - askme_mongo_data:/data/db
+    restart: unless-stopped
+    networks:
+      - askme-network
+
+  # Önbellek (Redis)
+  askme-redis:
+    image: redis:latest
+    container_name: AskMe_Redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - askme-network
+
+  # Backend Web API
+  askme-backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: AskMe_Backend
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MongoDbSettings__ConnectionString=mongodb://askme-mongodb:27017
+      - MongoDbSettings__DatabaseName=AskMe
+      - RedisSettings__ConnectionString=askme-redis:6379
+
+    depends_on:
+      - askme-mongodb
+      - askme-redis
+    restart: unless-stopped
+    networks:
+      - askme-network
+
+  # Frontend UI
+  askme-frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: AskMe_Frontend
+    ports:
+      - "8080:80" # Tarayıcıdan http://localhost:3000 adresinden erişmek için
+    depends_on:
+      - askme-backend
+    restart: unless-stopped
+    networks:
+      - askme-network
+
+volumes:
+  askme_mongo_data:
+
+networks:
+  askme-network:
+    driver: bridge

@@ -1,0 +1,29 @@
+# --- .NET (C#) Gereksiz Dosyalar ---
+[Bb]in/
+[Oo]bj/
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# --- Node.js / React (Frontend) Gereksiz Dosyalar ---
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env
+.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- İşletim Sistemi Kalıntıları ---
+.DS_Store
+Thumbs.db
+
+# --- Gemini / Yapay Zeka Klasörleri ---
+.gemini/
+.agents/

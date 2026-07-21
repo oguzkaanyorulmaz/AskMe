@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AskMe.Domain/AskMe.Domain.csproj" />
+  <Project Path="AskMe.Infrastructure/AskMe.Infrastructure.csproj" />
+</Solution>

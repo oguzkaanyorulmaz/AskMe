@@ -1,0 +1,37 @@
+﻿using AskMe.Domain.Interfaces.Abstractions;
+using AskMe.Infrastructure.Persistence;
+using StackExchange.Redis;
+using System;
+using System.Text.Json;
+
+namespace AskMe.Infrastructure.Cache;
+
+public class RedisCacheService<T> : ICacheService<T>
+{
+    private readonly IDatabase _database;
+    private readonly TimeSpan _defaultExpiration;
+
+    public RedisCacheService(IRedisService redisService, TimeSpan? defaultExpiration = null)
+    {
+        _database = redisService.GetDatabase();
+        _defaultExpiration = defaultExpiration ?? TimeSpan.FromMinutes(5);
+    }
+
+    public void Set(string key, T value, TimeSpan? expiration = null)
+    {
+        var serialized = JsonSerializer.Serialize(value);
+        _database.StringSet(key, serialized, expiration ?? _defaultExpiration);
+    }
+
+    public T? Get(string key)
+    {
+        var value = _database.StringGet(key);
+        if (!value.HasValue) return default;
+        return JsonSerializer.Deserialize<T>(value.ToString()!);
+    }
+
+    public void Delete(string key)
+    {
+        _database.KeyDelete(key);
+    }
+}

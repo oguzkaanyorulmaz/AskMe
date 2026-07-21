@@ -1,0 +1,15 @@
+﻿using AskMe.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AskMe.Domain.Interfaces.Repositories
+{
+    public interface ISystemSettingRepository
+    {
+        public Task<List<ESystemSetting>> ListAll();
+        public Task SetAll(List<ESystemSetting> settings);
+    }
+}
