@@ -6,6 +6,7 @@ import { RegisterPage } from './components/RegisterPage';
 import { InboxPage } from './components/InboxPage';
 import { ProfilePage } from './components/ProfilePage';
 import { SettingsPage } from './components/SettingsPage';
+import { BlurText } from './components/BlurText';
 
 function Dashboard() {
     const { user } = useAuth();
@@ -43,15 +44,28 @@ function Dashboard() {
                         <div className="flex-1 text-center md:text-left space-y-6 max-w-lg">
                             {/* ask?me Yazı Logosu */}
                             <div className="inline-flex items-center gap-2 select-none">
-                                <span className="text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-500">
-                                    ask?me
-                                </span>
+                                <BlurText 
+                                    text="ask?me" 
+                                    delay={80} 
+                                    duration={800} 
+                                    className="text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-500" 
+                                />
                             </div>
 
                             {/* Açıklama Yazısı */}
                             <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 leading-tight">
-                                Sevdiğin şeyleri <br className="hidden md:inline" />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">keşfet.</span>
+                                <BlurText 
+                                    text="Aklına Takılanı" 
+                                    delay={40} 
+                                    duration={700} 
+                                    className="block text-gray-900" 
+                                />
+                                <BlurText 
+                                    text="Sor?" 
+                                    delay={60} 
+                                    duration={800} 
+                                    className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 block mt-1" 
+                                />
                             </h1>
                             <p className="text-gray-500 font-semibold text-lg leading-relaxed">
                                 Arkadaşlarına şahsi sorular sor, merak ettiklerini öğren veya kendi profilini paylaşarak akışını canlandır.
