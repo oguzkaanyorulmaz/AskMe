@@ -15,10 +15,10 @@ namespace AskMe.Domain.Services
         private readonly IAnswerRepository _answerRepository; // EKLENEN SATIR 1
 
         public QuestionManagementDomainService(IQuestionRepository questionRepository, IAnswerRepository answerRepository)
-{
-    _questionRepository = questionRepository;
-    _answerRepository = answerRepository;
-}
+        {
+            _questionRepository = questionRepository;
+            _answerRepository = answerRepository;
+        }
 
         public async Task<QuestionOperationResult> AskQuestion(AskQuestionInput input)
         {
@@ -31,9 +31,8 @@ namespace AskMe.Domain.Services
                 IsAnonymous = input.IsAnonymous,
                 AskedToUsername = input.AskedToUsername,
                 CreatedAt = DateTime.UtcNow,
-                AskedByUsername = input.AskedByUsername
-                
-
+                AskedByUsername = input.AskedByUsername,
+                AllowedAnswerers = input.AllowedAnswerers
             };
 
             await _questionRepository.Create(newQuestion); 
@@ -49,7 +48,8 @@ namespace AskMe.Domain.Services
         QuestionId = input.QuestionId,
         Content = input.AnswerText,
         
-        UserId = input.AnsweredByUserId
+        UserId = input.AnsweredByUserId,
+        AnsweredByUsername = input.AnsweredByUsername
     };
     
     await _answerRepository.Create(newAnswer);
@@ -87,6 +87,11 @@ namespace AskMe.Domain.Services
         {
             return await _answerRepository.GetByQuestionId(questionId);
         }
+        public async Task<List<EQuestion>> GetFeedQuestions(string currentUsername, List<string> followedUsernames, int page, int pageSize)
+{
+    return await _questionRepository.GetFeedQuestions(currentUsername, followedUsernames, page, pageSize);
+}
+
 
     }
 }

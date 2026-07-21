@@ -6,6 +6,7 @@ import { InboxPage } from './components/InboxPage';
 import { ProfilePage } from './components/ProfilePage';
 import { SettingsPage } from './components/SettingsPage';
 import { BlurText } from './components/BlurText'; // <-- BlurText'i tekrar import ediyoruz
+import { FeedPage } from './components/FeedPage';
 
 function Dashboard() {
     const { user } = useAuth();
@@ -59,18 +60,22 @@ function Dashboard() {
 
                         {/* Kapsül Tab Düğmeleri (Kayan Turuncu Göstergeli) */}
                         <div className="w-full bg-[#151929] border border-gray-800/80 p-1 rounded-full flex relative select-none mt-6 shrink-0">
-                            {/* Kayan Turuncu Arka Plan */}
+                            {/* Kayan Göstergeli Arka Plan */}
                             <span
-                                className={`absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] bg-gradient-to-r from-orange-500 to-red-500 rounded-full transition-transform duration-350 ease-out ${currentTab === 'register' ? 'translate-x-full' : 'translate-x-0'
-                                    }`}
+                                className={`absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full transition-all duration-350 ease-out ${
+                                    currentTab === 'register'
+                                        ? 'translate-x-full bg-gradient-to-r from-orange-500 to-red-500'
+                                        : 'translate-x-0 bg-white'
+                                }`}
                             />
                             <button
                                 onClick={() => {
                                     setCurrentTab('login');
                                     setShowAbout(false); // Giriş yapa basınca hakkında kısmını kapatır
                                 }}
-                                className={`w-1/2 py-2.5 text-center font-bold text-xs transition-colors duration-300 relative z-10 cursor-pointer ${currentTab !== 'register' ? 'text-white' : 'text-gray-400 hover:text-white'
-                                    }`}
+                                className={`w-1/2 py-2.5 text-center font-bold text-xs transition-colors duration-300 relative z-10 cursor-pointer ${
+                                    currentTab !== 'register' ? 'text-orange-500' : 'text-gray-400 hover:text-white'
+                                }`}
                             >
                                 Giriş Yap
                             </button>
@@ -79,8 +84,9 @@ function Dashboard() {
                                     setCurrentTab('register');
                                     setShowAbout(false); // Kayıt ola basınca hakkında kısmını kapatır
                                 }}
-                                className={`w-1/2 py-2.5 text-center font-bold text-xs transition-colors duration-300 relative z-10 cursor-pointer ${currentTab === 'register' ? 'text-white' : 'text-gray-400 hover:text-white'
-                                    }`}
+                                className={`w-1/2 py-2.5 text-center font-bold text-xs transition-colors duration-300 relative z-10 cursor-pointer ${
+                                    currentTab === 'register' ? 'text-white' : 'text-gray-400 hover:text-white'
+                                }`}
                             >
                                 Kayıt Ol
                             </button>
@@ -224,32 +230,13 @@ function Dashboard() {
                 onTabChange={handleTabChange}
                 onSearchProfile={handleSearchProfile}
             />
-
             <main className="flex-1 py-8 px-4">
                 {currentTab === 'feed' && (
-                    <div className="max-w-xl mx-auto space-y-6 text-center mt-12 bg-white border border-gray-100 rounded-3xl p-8 shadow-xs">
-                        <div className="text-5xl">👋</div>
-                        <h2 className="text-3xl font-black tracking-tight text-gray-900">
-                            AskMe'ye Hoş Geldiniz!
-                        </h2>
-                        <p className="text-gray-500 text-sm max-w-sm mx-auto leading-relaxed">
-                            Merak ettiğiniz şeyleri arkadaşlarınıza şahsi olarak sorun ya da kendi profilinizi paylaşarak soruları yanıtlayın.
-                        </p>
-                        <div className="pt-4 flex justify-center gap-3">
-                            <button
-                                onClick={() => handleSearchProfile(user.username)}
-                                className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-full shadow-xs hover:shadow-md transition-all cursor-pointer text-sm"
-                            >
-                                Profilime Git
-                            </button>
-                        </div>
-                    </div>
+                    <FeedPage onGoToQuestion={handleGoToQuestion} />
                 )}
-
                 {currentTab === 'inbox' && (
                     <InboxPage onGoToQuestion={handleGoToQuestion} />
                 )}
-
                 {currentTab === 'profile' && (
                     <ProfilePage
                         targetUsername={searchedUser || user.username}
@@ -257,7 +244,6 @@ function Dashboard() {
                         clearHighlight={() => setHighlightQuestionId(null)}
                     />
                 )}
-
                 {currentTab === 'settings' && user.role === 'Admin' && (
                     <SettingsPage />
                 )}

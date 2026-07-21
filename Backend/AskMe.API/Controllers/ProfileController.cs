@@ -29,4 +29,32 @@ public class ProfileController : ControllerBase
     {
         return await _profileAppService.UpdateProfile(request);
     }
+        [HttpPost("Follow")]
+    [Secured]
+    public async Task<FollowResponse> Follow([FromBody] FollowRequest request)
+    {
+        return await _profileAppService.Follow(request);
+    }
+
+    [HttpPost("Unfollow")]
+    [Secured]
+    public async Task<FollowResponse> Unfollow([FromBody] FollowRequest request)
+    {
+        return await _profileAppService.Unfollow(request);
+    }
+
+    [HttpGet("IsFollowing")]
+    [Secured]
+    public async Task<IsFollowingResponse> IsFollowing([FromQuery] string targetUsername)
+    {
+        string currentUsername = HttpContext.Items["username"]?.ToString() ?? "";
+        return await _profileAppService.IsFollowing(targetUsername, currentUsername);
+    }
+
+    [HttpGet("List")]
+    [Secured]
+    public async Task<System.Collections.Generic.List<AskMe.Domain.CacheItems.UserInfo>> GetUserList([FromQuery] int page = 1)
+    {
+        return await _profileAppService.GetUserList(page);
+    }
 }

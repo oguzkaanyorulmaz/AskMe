@@ -21,6 +21,8 @@ namespace AskMe.Domain.Interfaces.DomainServices
         Task<List<EQuestion>> GetAnsweredQuestions(Guid userId); 
         Task<List<EQuestion>> GetQuestionsAskedByUser(Guid userId);
         Task<List<EAnswer>> GetAnswersByQuestionId(Guid questionId);
+        Task<List<EQuestion>> GetFeedQuestions(string currentUsername, List<string> followedUsernames, int page, int pageSize);
+
 
     }
 }

@@ -8,6 +8,7 @@ export interface QuestionProps {
     isAnonymous: boolean;
     status: 'Unanswered' | 'Answered';
     createdAt: string;
+    allowedAnswerers?: string;
 }
 
 export class Question {
@@ -26,4 +27,5 @@ export class Question {
     get isAnonymous(): boolean { return this.props.isAnonymous; }
     get status(): 'Unanswered' | 'Answered' { return this.props.status; }
     get createdAt(): string { return this.props.createdAt; }
+    get allowedAnswerers(): string | undefined { return this.props.allowedAnswerers; }
 }

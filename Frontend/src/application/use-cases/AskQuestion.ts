@@ -8,7 +8,7 @@ export class AskQuestion {
         this.repository = repository;
     }
 
-    async execute(askedToUserId: string, askedToUsername: string, content: string, isAnonymous: boolean): Promise<Question> {
-        return await this.repository.askQuestion(askedToUserId, askedToUsername, content, isAnonymous);
+    async execute(askedToUserId: string, askedToUsername: string, content: string, isAnonymous: boolean, allowedAnswerers?: string): Promise<Question> {
+        return await this.repository.askQuestion(askedToUserId, askedToUsername, content, isAnonymous, allowedAnswerers);
     }
 }

@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { ApiQuestionRepository } from '../../infrastructure/repositories/ApiQuestionRepository';
-import { AskQuestion } from '../../application/use-cases/AskQuestion';
 import { AnswerQuestion } from '../../application/use-cases/AnswerQuestion';
 import { API_BASE_URL } from '../../core/constants';
+import { ApiAuthRepository } from '../../infrastructure/repositories/ApiAuthRepository';
+import { FollowUser } from '../../application/use-cases/FollowUser';
+import { UnfollowUser } from '../../application/use-cases/UnFollowUser';
+import { CheckFollowStatus } from '../../application/use-cases/CheckFollowStatus';
+import { AskQuestionForm } from './AskQuestionForm';
+
 
 interface ProfilePageProps {
     targetUsername: string;
@@ -11,8 +16,11 @@ interface ProfilePageProps {
     clearHighlight?: () => void;         // <-- Yeni
 }
 
+const authRepository = new ApiAuthRepository();
+const followUserUseCase = new FollowUser(authRepository);
+const unfollowUserUseCase = new UnfollowUser(authRepository);
+const checkFollowStatusUseCase = new CheckFollowStatus(authRepository);
 const questionRepository = new ApiQuestionRepository();
-const askQuestionUseCase = new AskQuestion(questionRepository);
 const answerQuestionUseCase = new AnswerQuestion(questionRepository);
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({ targetUsername, highlightQuestionId, clearHighlight }) => {
@@ -26,11 +34,11 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ targetUsername, highli
     const [editBio, setEditBio] = useState('');
     const [editLoading, setEditLoading] = useState(false);
 
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [followLoading, setFollowLoading] = useState(false);
+
     // Soru Sorma Durumları
-    const [questionText, setQuestionText] = useState('');
-    const [isAnonymous, setIsAnonymous] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     // Çoklu Cevap Ekleme Durumları
@@ -45,27 +53,49 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ targetUsername, highli
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ targetUsername })
             });
-
             if (!resProfile.ok) throw new Error('Profil yüklenemedi.');
             const profileData = await resProfile.json();
-
             setProfile({
                 userId: profileData.userId || '',
                 username: profileData.username || targetUsername,
                 nameSurname: profileData.nameSurname || targetUsername,
                 bio: profileData.bio || 'Henüz bir biyografi eklenmemiş.'
             });
-
             setEditNameSurname(profileData.nameSurname || targetUsername);
             setEditBio(profileData.bio || '');
-
             const profileQuestions = await questionRepository.getProfileQuestions(targetUsername);
             setQuestions(profileQuestions);
+            // Takip durumunu kontrol et (Kendi profilimiz değilse):
+            const currentIsOwnProfile = user?.username.toLowerCase() === (profileData.username || targetUsername).toLowerCase();
+            if (!currentIsOwnProfile && user) {
+                const followStatus = await checkFollowStatusUseCase.execute(profileData.username || targetUsername);
+                setIsFollowing(followStatus);
+            }
         } catch (err) {
             console.error(err);
             setMessage({ type: 'error', text: 'Profil yüklenirken hata oluştu.' });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleFollowClick = async () => {
+        if (!profile || !user) return;
+
+        setFollowLoading(true);
+        try {
+            if (isFollowing) {
+                await unfollowUserUseCase.execute(profile.username);
+                setIsFollowing(false);
+            } else {
+                await followUserUseCase.execute(profile.username);
+                setIsFollowing(true);
+            }
+        } catch (err) {
+            console.error('Takip/Takipten Çıkma hatası:', err);
+            setMessage({ type: 'error', text: isFollowing ? 'Takipten çıkılamadı.' : 'Takip edilemedi.' });
+        } finally {
+            setFollowLoading(false);
         }
     };
 
@@ -95,36 +125,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ targetUsername, highli
         }
     }, [loading, highlightQuestionId, questions]);
 
-    const handleAsk = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!questionText.trim() || !profile) return;
 
-        setSubmitting(true);
-        setMessage(null);
-        const submitAnonymous = isOwnProfile ? false : isAnonymous;
-
-        try {
-            await askQuestionUseCase.execute(
-                profile.userId,
-                profile.username,
-                questionText.trim(),
-                submitAnonymous
-            );
-            setMessage({
-                type: 'success',
-                text: isOwnProfile
-                    ? 'Düşünceniz profilinizde başarıyla paylaşıldı!'
-                    : 'Sorunuz başarıyla gönderildi!'
-            });
-            setQuestionText('');
-            setIsAnonymous(false);
-            await fetchProfileData();
-        } catch (err: any) {
-            setMessage({ type: 'error', text: err.message || 'Gönderim başarısız.' });
-        } finally {
-            setSubmitting(false);
-        }
-    };
 
     const handleUpdateProfile = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -202,7 +203,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ targetUsername, highli
                             Profili Düzenle
                         </button>
                     )}
+                    {!isOwnProfile && user && (
+                        <button
+                            onClick={handleFollowClick}
+                            disabled={followLoading}
+                            className={`px-4 py-1.5 font-bold rounded-full text-xs shadow-xs cursor-pointer transition-all ${isFollowing
+                                ? 'bg-white/20 text-white hover:bg-white/30 border border-white/30'
+                                : 'bg-white text-orange-600 hover:bg-orange-50'
+                                }`}
+                        >
+                            {followLoading ? '...' : isFollowing ? 'Takipten Çık' : 'Takip Et'}
+                        </button>
+                    )}
                 </div>
+
+
                 {!isEditing && (
                     <p className="mt-4 text-sm bg-white/10 rounded-2xl p-3 backdrop-blur-xs">
                         {profile.bio}
@@ -262,48 +277,13 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ targetUsername, highli
             )}
 
             {/* Ask Question Form */}
-            {!isEditing && (
-                <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-xs space-y-4">
-                    <h3 className="font-black text-lg text-gray-900">
-                        {isOwnProfile ? 'Düşüncelerini Paylaş' : `@${profile.username} kullanıcısına şahsi soru sor`}
-                    </h3>
-
-                    <form onSubmit={handleAsk} className="space-y-3">
-                        <textarea
-                            required
-                            placeholder={isOwnProfile ? "Kendi profilinde herkese açık ne paylaşmak istersin?" : "Neyi merak ediyorsun?"}
-                            rows={3}
-                            value={questionText}
-                            onChange={(e) => setQuestionText(e.target.value)}
-                            className="w-full p-4 border border-gray-200 rounded-2xl focus:outline-hidden focus:border-orange-500 text-sm resize-none bg-gray-50 focus:bg-white transition-all font-semibold"
-                        />
-
-                        <div className="flex items-center justify-between">
-                            {!isOwnProfile ? (
-                                <label className="flex items-center gap-2 text-sm text-gray-500 font-bold select-none cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={isAnonymous}
-                                        onChange={(e) => setIsAnonymous(e.target.checked)}
-                                        className="w-4 h-4 accent-orange-500"
-                                    />
-                                    Anonim olarak sor
-                                </label>
-                            ) : (
-                                <div></div>
-                            )}
-
-                            <button
-                                type="submit"
-                                disabled={submitting || !questionText.trim()}
-                                className="px-5 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-200 text-white disabled:text-gray-400 font-bold rounded-full text-xs transition-all shadow-xs hover:shadow-md cursor-pointer"
-                            >
-                                {isOwnProfile ? 'Paylaş' : 'Sor'}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+            {!isEditing && profile && (
+                <AskQuestionForm
+                    defaultTargetUsername={profile.username}
+                    onSuccess={fetchProfileData}
+                />
             )}
+
 
             {/* Questions and Answers Timeline */}
             <div className="space-y-4">
@@ -314,13 +294,21 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ targetUsername, highli
                         Henüz sorulmuş bir soru bulunmuyor.
                     </div>
                 ) : (
-                    questions.map((q) => (
-                        <div
+                    questions.map((q) => {
+                        const isPublicQuestion = q.askedBy && q.askedBy !== 'Gizli Kullanıcı' && q.askedBy.toLowerCase() === profile.username.toLowerCase();
+                        const canAnswer = isOwnProfile || (
+                            isPublicQuestion && (
+                                q.allowedAnswerers === 'Everyone' ||
+                                (q.allowedAnswerers === 'Followers' && isFollowing)
+                            )
+                        );
+                        return (
+                            <div
                             key={q.id}
                             id={`q-${q.id}`} // 🌟 Kaydırma işlemi için element ID verdik
                             className={`bg-white border rounded-3xl p-5 shadow-xs space-y-4 transition-all duration-1000 ${highlightQuestionId === q.id
-                                    ? 'animate-glow-orange border-orange-500 ring-4 ring-orange-100' // 🌟 Parlama sınıfı
-                                    : 'border-gray-100'
+                                ? 'animate-glow-orange border-orange-500 ring-4 ring-orange-100' // 🌟 Parlama sınıfı
+                                : 'border-gray-100'
                                 }`}
                         >
                             {/* Question details */}
@@ -350,13 +338,18 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ targetUsername, highli
                                         </div>
                                         <div className="bg-gray-50 rounded-2xl p-3 flex-1 font-semibold text-gray-700">
                                             {ans.content}
+                                            {ans.answeredByUsername && ans.answeredByUsername.toLowerCase() !== profile.username.toLowerCase() && (
+                                                <span className="text-[10px] text-orange-500 font-bold block mt-1">
+                                                    - @{ans.answeredByUsername} tarafından cevaplandı
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Add Multi-Answer Form */}
-                            {isOwnProfile && (
+                            {canAnswer && (
                                 <div className="pt-2">
                                     {activeQuestionId === q.id ? (
                                         <form onSubmit={(e) => handleAddAnswerSubmit(e, q.id)} className="space-y-2">
@@ -403,7 +396,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ targetUsername, highli
                                 </div>
                             )}
                         </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
         </div>

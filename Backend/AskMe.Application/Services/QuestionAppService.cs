@@ -7,6 +7,7 @@ using AutoMapper;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace AskMe.Application.Services;
 
@@ -15,15 +16,18 @@ public class QuestionAppService : IQuestionAppService
     private readonly IQuestionManagementDomainService _questionManagementDomainService;
     private readonly IUserManagementDomainService _userManagementDomainService;
     private readonly IMapper _mapper;
+    private readonly IFollowDomainService _followDomainService;
 
     public QuestionAppService(
         IQuestionManagementDomainService questionManagementDomainService, 
         IUserManagementDomainService userManagementDomainService,
-        IMapper mapper)
+        IMapper mapper,
+        IFollowDomainService followDomainService)
     {
         _questionManagementDomainService = questionManagementDomainService;
         _userManagementDomainService = userManagementDomainService;
         _mapper = mapper;
+        _followDomainService = followDomainService;
     }
 
     public async Task<AskQuestionResponse> AskQuestion(AskQuestionRequest request)
@@ -38,7 +42,8 @@ public class QuestionAppService : IQuestionAppService
             AskedByUserId = request.RequestContext.UserId,
             IsAnonymous = request.IsAnonymous,
             AskedByUsername = request.RequestContext.GetUsername(),
-            AskedToUsername = request.AskedToUsername
+            AskedToUsername = request.AskedToUsername,
+            AllowedAnswerers = request.AllowedAnswerers ?? "Everyone"
         };
 
         var result = await _questionManagementDomainService.AskQuestion(input);
@@ -55,39 +60,38 @@ public class QuestionAppService : IQuestionAppService
     }
 
     public async Task<GetInboxResponse> GetInbox(GetInboxRequest request)
-{
-    string currentUsername = request.RequestContext.GetUsername();
-
-    var questions = await _questionManagementDomainService.GetUnansweredQuestions(
-        currentUsername, 
-        request.Page, 
-        request.PageSize
-    );
-
-    var safeItems = questions.Select(q => new InboxItem
     {
-        Id = q.Id,
-        Content = q.Content,
-        CreatedAt = q.CreatedAt,
-        AskedBy = q.IsAnonymous ? "Gizli Kullanıcı" : q.AskedByUsername 
-    }).ToList();
+        string currentUsername = request.RequestContext.GetUsername();
 
-    return new GetInboxResponse { Items = safeItems, IsSuccess = true };
-}
+        var questions = await _questionManagementDomainService.GetUnansweredQuestions(
+            currentUsername, 
+            request.Page, 
+            request.PageSize
+        );
 
-        public async Task<ProfileQuestionsResponse> GetProfileQuestions(ProfileQuestionsRequest request)
+        var safeItems = questions.Select(q => new InboxItem
+        {
+            Id = q.Id,
+            Content = q.Content,
+            CreatedAt = q.CreatedAt,
+            AskedBy = q.IsAnonymous ? "Gizli Kullanıcı" : q.AskedByUsername 
+        }).ToList();
+
+        return new GetInboxResponse { Items = safeItems, IsSuccess = true };
+    }
+
+    public async Task<ProfileQuestionsResponse> GetProfileQuestions(ProfileQuestionsRequest request)
     {
-        // 1. Kullanıcıya sorulmuş tüm soruları getir (tarihe göre en yeni en üstte olacak şekilde gelir)
         var questions = await _questionManagementDomainService.GetUnansweredQuestions(
             request.TargetUsername, 
             request.Page, 
             request.PageSize
+            
         );
 
         var items = new List<ProfileQuestionItem>();
         foreach (var q in questions)
         {
-            // 2. Bu soruya verilmiş tüm cevapları getir
             var answers = await _questionManagementDomainService.GetAnswersByQuestionId(q.Id);
             items.Add(new ProfileQuestionItem
             {
@@ -95,10 +99,12 @@ public class QuestionAppService : IQuestionAppService
                 Content = q.Content,
                 CreatedAt = q.CreatedAt,
                 AskedBy = q.IsAnonymous ? "Gizli Kullanıcı" : q.AskedByUsername ?? "Bilinmeyen",
+                AllowedAnswerers = q.AllowedAnswerers ?? "Everyone",
                 Answers = answers.Select(a => new ProfileAnswerItem
                 {
                     Id = a.Id,
-                    Content = a.Content
+                    Content = a.Content,
+                    AnsweredByUsername = a.AnsweredByUsername ?? ""
                 }).ToList()
             });
         }
@@ -106,5 +112,60 @@ public class QuestionAppService : IQuestionAppService
         return new ProfileQuestionsResponse { Items = items, IsSuccess = true };
     }
 
+    public async Task<GetFeedResponse> GetFeed(GetFeedRequest request)
+    {
+        string currentUsername = request.RequestContext.GetUsername();
+        var followedUsernames = await _followDomainService.GetFollowedUsernames(currentUsername);
 
+        var questions = await _questionManagementDomainService.GetFeedQuestions(
+            currentUsername,
+            followedUsernames,
+            request.Page,
+            request.PageSize
+        );
+
+        var items = new List<FeedItemDto>();
+        foreach (var q in questions)
+        {
+            var answers = await _questionManagementDomainService.GetAnswersByQuestionId(q.Id);
+            
+            string feedType = "FollowedUserAsked";
+            if (string.Equals(q.AskedToUsername, currentUsername, StringComparison.OrdinalIgnoreCase))
+            {
+                feedType = "AskedToMe";
+            }
+            else if (string.Equals(q.AskedByUsername, currentUsername, StringComparison.OrdinalIgnoreCase))
+            {
+                feedType = "AskedByMe";
+            }
+            else if (followedUsernames.Any(u => string.Equals(u, q.AskedToUsername, StringComparison.OrdinalIgnoreCase)))
+            {
+                feedType = q.Status == AskMe.Domain.Common.Enums.QuestionStatusEnum.Answered 
+                    ? "FollowedUserAnswered" 
+                    : "FollowedUserAsked";
+            }
+
+            items.Add(new FeedItemDto
+            {
+                Id = q.Id,
+                Content = q.Content,
+                CreatedAt = q.CreatedAt,
+                AskedBy = q.IsAnonymous ? "Gizli Kullanıcı" : q.AskedByUsername ?? "Bilinmeyen",
+                AskedTo = q.AskedToUsername,
+                IsAnonymous = q.IsAnonymous,
+                Status = q.Status.ToString(),
+                FeedType = feedType,
+                Answers = answers.Select(a => new FeedAnswerItemDto
+                {
+                    Id = a.Id,
+                    Content = a.Content,
+                    CreatedAt = a.CreatedDate,
+                    AnsweredByUsername = a.AnsweredByUsername ?? ""
+                }).ToList()
+
+            });
+        }
+
+        return new GetFeedResponse { Items = items, IsSuccess = true };
+    }
 }

@@ -78,17 +78,15 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, currentTab, onTab
                 {/* Dikeyde Kayarak Değişen Başlık Alanı */}
                 <div className="relative h-16 w-full overflow-hidden mt-6">
                     {/* Giriş Yapın Başlığı */}
-                    <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 ease-out transform ${
-                        isRegister ? '-translate-y-8 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
-                    }`}>
+                    <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 ease-out transform ${isRegister ? '-translate-y-8 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+                        }`}>
                         <span className="text-[10px] tracking-widest text-gray-500 font-bold uppercase">HOŞ GELDİNİZ</span>
                         <h1 className="text-3xl font-black tracking-tight text-white mt-1">Giriş Yapın</h1>
                     </div>
 
                     {/* Kayıt Olun Başlığı */}
-                    <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 ease-out transform ${
-                        isRegister ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0 pointer-events-none'
-                    }`}>
+                    <div className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 ease-out transform ${isRegister ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0 pointer-events-none'
+                        }`}>
                         <span className="text-[10px] tracking-widest text-gray-500 font-bold uppercase">YENİ ÜYELİK</span>
                         <h1 className="text-3xl font-black tracking-tight text-white mt-1">Kayıt Olun</h1>
                     </div>
@@ -122,17 +120,16 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, currentTab, onTab
                             placeholder="kullanıcı_adı"
                         />
                         <span className="absolute right-5 top-3.5 text-gray-500 hover:text-white transition-colors cursor-pointer select-none focus:outline-none font-logo text-base font-bold">
-                            @
+
                         </span>
                     </div>
                 </div>
 
                 {/* 2. SLIDING ALAN: E-posta ve Ad Soyad (Kayıt olunca soldan kayarak açılır) */}
-                <div className={`transition-all duration-500 ease-in-out overflow-hidden space-y-4 ${
-                    isRegister
+                <div className={`transition-all duration-500 ease-in-out overflow-hidden space-y-4 ${isRegister
                         ? 'max-h-[220px] opacity-100 transform translate-x-0'
                         : 'max-h-0 opacity-0 transform -translate-x-12 pointer-events-none'
-                }`}>
+                    }`}>
                     {/* E-posta */}
                     <div className="space-y-1.5">
                         <label className="block text-[10px] font-bold text-gray-500 tracking-wider uppercase pl-2">
@@ -208,7 +205,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onSuccess, currentTab, onTab
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-12 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold rounded-full shadow-md hover:shadow-lg transition-all flex items-center justify-center text-sm cursor-pointer disabled:opacity-55 mt-6"
+                    className="custom-auth-btn mt-6"
                 >
                     {loading ? (isRegister ? 'Kayıt Yapılıyor...' : 'Giriş Yapılıyor...') : (isRegister ? 'Kayıt Ol' : 'Giriş Yap')}
                 </button>

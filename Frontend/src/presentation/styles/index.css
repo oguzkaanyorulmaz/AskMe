@@ -41,3 +41,54 @@ body {
         transform: translateY(0px);
     }
 }
+
+/* Custom Auth Button Style */
+.custom-auth-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 15px 25px;
+    border: unset;
+    border-radius: 9999px; /* rounded-full to match inputs */
+    color: #f97316; /* Theme Orange */
+    z-index: 1;
+    background: #ffffff; /* White */
+    position: relative;
+    font-weight: 1000;
+    font-size: 17px;
+    -webkit-box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+    box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+    transition: all 250ms;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.custom-auth-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0;
+    border-radius: 9999px; /* rounded-full to match inputs */
+    background: linear-gradient(135deg, #f97316 0%, #ef4444 100%);
+    z-index: -1;
+    -webkit-box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+    box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27);
+    transition: all 250ms;
+}
+
+.custom-auth-btn:hover:not(:disabled) {
+    color: #ffffff; /* White text on hover */
+    background-color: transparent; /* Prevent parent background bleed on hover */
+}
+
+.custom-auth-btn:hover:not(:disabled)::before {
+    width: 100%;
+}
+
+.custom-auth-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}

@@ -16,5 +16,6 @@ namespace AskMe.Domain.Interfaces.Repositories
         Task<List<EQuestion>> ListByAskedToUsername(string username, int page, int pageSize);
 
         Task<bool> Update(EQuestion question);
+        Task<List<EQuestion>> GetFeedQuestions(string currentUsername, List<string> followedUsernames, int page, int pageSize);
     }
 }

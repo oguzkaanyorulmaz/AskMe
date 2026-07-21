@@ -15,10 +15,13 @@ public class ProfileQuestionItem
     public DateTime CreatedAt { get; set; }
     public string AskedBy { get; set; } = "";
     public List<ProfileAnswerItem> Answers { get; set; } = new();
+    public string AllowedAnswerers { get; set; } = "Everyone";
+
 }
 
 public class ProfileAnswerItem
 {
     public Guid Id { get; set; }
     public string Content { get; set; } = "";
+    public string AnsweredByUsername { get; set; } = "";
 }

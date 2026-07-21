@@ -24,6 +24,8 @@ namespace AskMe.Domain.Entities
         public required string AskedToUsername { get; set; }
 
         public DateTime CreatedAt { get; set; }
+        public string AllowedAnswerers { get; set; } = "Everyone"; // "Everyone" veya "Followers"
+
 
         public EQuestion()
         {

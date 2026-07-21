@@ -44,5 +44,11 @@ public class QuestionController : ControllerBase
     {
         return await _questionAppService.GetProfileQuestions(request);
     }
+    [HttpGet("Feed")]
+    [Secured]
+    public async Task<GetFeedResponse> GetFeed([FromQuery] GetFeedRequest request)
+    {
+        return await _questionAppService.GetFeed(request);
+    }
 
 }

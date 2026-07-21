@@ -20,5 +20,7 @@ namespace AskMe.Domain.DomainObjects.QuestionManagement
 
 
         public required string AskedToUsername { get; set; }
+        public string AllowedAnswerers { get; set; } = "Everyone";
+
     }
 }

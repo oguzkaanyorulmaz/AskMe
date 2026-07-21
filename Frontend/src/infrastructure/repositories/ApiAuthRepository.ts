@@ -78,5 +78,69 @@ export class ApiAuthRepository implements IAuthRepository {
 
         return response.ok;
     }
+    async follow(targetUsername: string): Promise<boolean> {
+        const user = this.getUserFromStorage();
+        if (!user) return false;
 
+        const response = await fetch(`${API_BASE_URL}/Profile/Follow`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.token}`
+            },
+            body: JSON.stringify({ targetUsername })
+        });
+
+        return response.ok;
+    }
+
+    async unfollow(targetUsername: string): Promise<boolean> {
+        const user = this.getUserFromStorage();
+        if (!user) return false;
+
+        const response = await fetch(`${API_BASE_URL}/Profile/Unfollow`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.token}`
+            },
+            body: JSON.stringify({ targetUsername })
+        });
+
+        return response.ok;
+    }
+
+    async isFollowing(targetUsername: string): Promise<boolean> {
+        const user = this.getUserFromStorage();
+        if (!user) return false;
+
+        const response = await fetch(`${API_BASE_URL}/Profile/IsFollowing?targetUsername=${targetUsername}`, {
+            headers: {
+                'Authorization': `Bearer ${user.token}`
+            }
+        });
+
+        const data = await response.json();
+        return data.isFollowing || false;
+    }
+
+    async listUsers(): Promise<any[]> {
+        const user = this.getUserFromStorage();
+        if (!user) return [];
+
+        const response = await fetch(`${API_BASE_URL}/Profile/List?page=1`, {
+            headers: {
+                'Authorization': `Bearer ${user.token}`
+            }
+        });
+
+        if (!response.ok) return [];
+        return await response.json();
+    }
+
+    private getUserFromStorage() {
+        const stored = localStorage.getItem('askme_user');
+        if (!stored) return null;
+        return JSON.parse(stored);
+    }
 }

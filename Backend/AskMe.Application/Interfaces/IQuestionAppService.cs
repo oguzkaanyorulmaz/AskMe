@@ -9,4 +9,5 @@ public interface IQuestionAppService
     Task<DeleteQuestionResponse> DeleteQuestion(DeleteQuestionRequest request);
     Task<GetInboxResponse> GetInbox(GetInboxRequest request);
     Task<ProfileQuestionsResponse> GetProfileQuestions(ProfileQuestionsRequest request);
+    Task<GetFeedResponse> GetFeed(GetFeedRequest request);
 }

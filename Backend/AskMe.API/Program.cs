@@ -34,6 +34,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISystemSettingRepository, SystemSettingRepository>();
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>(); 
 builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
+builder.Services.AddScoped<IFollowRepository, FollowRepository>();
 #endregion
 
 #region App Services
@@ -49,6 +50,7 @@ builder.Services.AddScoped<IAuthorizationDomainService, AuthorizationDomainServi
 builder.Services.AddScoped<ISystemManagementDomainService, SystemManagementDomainService>();
 builder.Services.AddScoped<IUserManagementDomainService, UserManagementDomainService>(); // Profil ve Kullanıcı yönetimi tek serviste birleşti
 builder.Services.AddScoped<IQuestionManagementDomainService, QuestionManagementDomainService>(); // Soru ve Cevap yönetimi tek serviste birleşti
+builder.Services.AddScoped<IFollowDomainService, FollowDomainService>();
 #endregion
 
 #region Infrastructure Services

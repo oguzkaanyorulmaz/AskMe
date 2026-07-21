@@ -15,5 +15,6 @@ namespace AskMe.Domain.DomainObjects.QuestionManagement
         public required Guid UserId { get; set; }
         public required string AnswerText { get; set; }
         public Guid AnsweredByUserId { get; set; }
+        public string? AnsweredByUsername { get; set; }
     }
 }

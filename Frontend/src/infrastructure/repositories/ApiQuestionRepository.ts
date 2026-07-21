@@ -16,7 +16,7 @@ export class ApiQuestionRepository implements IQuestionRepository {
         return '';
     }
 
-    async askQuestion(askedToUserId: string, askedToUsername: string, content: string, isAnonymous: boolean): Promise<Question> {
+    async askQuestion(askedToUserId: string, askedToUsername: string, content: string, isAnonymous: boolean, allowedAnswerers?: string): Promise<Question> {
         const response = await fetch(`${API_BASE_URL}/Question/Ask`, {
             method: 'POST',
             headers: {
@@ -26,7 +26,8 @@ export class ApiQuestionRepository implements IQuestionRepository {
             body: JSON.stringify({
                 askedToUsername: askedToUsername,
                 questionText: content,
-                isAnonymous: isAnonymous
+                isAnonymous: isAnonymous,
+                allowedAnswerers: allowedAnswerers || 'Everyone'
             })
         });
 
@@ -43,7 +44,8 @@ export class ApiQuestionRepository implements IQuestionRepository {
             askedToUsername: askedToUsername,
             isAnonymous: isAnonymous,
             status: 'Unanswered',
-            createdAt: new Date().toISOString()
+            createdAt: new Date().toISOString(),
+            allowedAnswerers: allowedAnswerers
         });
     }
 
@@ -126,6 +128,20 @@ export class ApiQuestionRepository implements IQuestionRepository {
         // Backend'den dönen Items listesini olduğu gibi döndür
         return json.items || [];
     }
+    async getFeed(): Promise<any[]> {
+        const response = await fetch(`${API_BASE_URL}/Question/Feed?Page=1&PageSize=20`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${this.getToken()}`
+            }
+        });
 
+        if (!response.ok) {
+            throw new Error('Akış yüklenemedi.');
+        }
+
+        const data = await response.json();
+        return data.items || [];
+    }
 
 }

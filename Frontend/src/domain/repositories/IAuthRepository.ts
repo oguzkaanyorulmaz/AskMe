@@ -10,4 +10,8 @@ export interface IAuthRepository {
     register(username: string, email: string, password: string, nameSurname?: string): Promise<boolean>;
     logout(): Promise<void>;
     updateProfile(nameSurname: string, bio: string): Promise<boolean>;
+    follow(targetUsername: string): Promise<boolean>;
+    unfollow(targetUsername: string): Promise<boolean>;
+    isFollowing(targetUsername: string): Promise<boolean>;
+    listUsers(): Promise<any[]>;
 }

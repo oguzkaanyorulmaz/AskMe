@@ -14,6 +14,8 @@ namespace AskMe.Domain.Entities
 
         public Guid UserId { get; set; }
 
+        public string? AnsweredByUsername { get; set; }
+
         public EAnswer()
         {
         }
