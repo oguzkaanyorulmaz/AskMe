@@ -1,10 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap');
 @import "tailwindcss";
 
-.font-logo {
+/* Tailwind'in varsayılan font değişkenini Bricolage Grotesque ile değiştiriyoruz */
+@theme {
+    --font-sans: 'Bricolage Grotesque', sans-serif;
+}
+
+/* Tüm sayfa gövdesine varsayılan olarak bu fontu uyguluyoruz */
+body {
     font-family: 'Bricolage Grotesque', sans-serif;
 }
 
+/* (İsteğe bağlı) Eski font-logo sınıfınız da çalışmaya devam etsin */
+.font-logo {
+    font-family: 'Bricolage Grotesque', sans-serif;
+}
 
 @keyframes orange-glow {
 
