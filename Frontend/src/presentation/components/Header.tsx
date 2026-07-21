@@ -27,7 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onTabChange, onSearc
                     onClick={() => onTabChange('feed')}
                     className="flex items-center gap-2 cursor-pointer select-none"
                 >
-                    <span className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">
+                    <span className="font-logo text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500">
                         AskMe
                     </span>
                     <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-bold bg-orange-100 text-orange-600 rounded-full">

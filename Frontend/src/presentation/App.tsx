@@ -48,7 +48,7 @@ function Dashboard() {
                                     text="ask?me" 
                                     delay={80} 
                                     duration={800} 
-                                    className="text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-500" 
+                                    className="font-logo text-6xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-500" 
                                 />
                             </div>
 
@@ -58,13 +58,13 @@ function Dashboard() {
                                     text="Aklına Takılanı" 
                                     delay={40} 
                                     duration={700} 
-                                    className="block text-gray-900" 
+                                    className="font-logo block text-gray-900" 
                                 />
                                 <BlurText 
                                     text="Sor?" 
                                     delay={60} 
                                     duration={800} 
-                                    className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 block mt-1" 
+                                    className="font-logo text-transparent bg-clip-text bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 block mt-1" 
                                 />
                             </h1>
                             <p className="text-gray-500 font-semibold text-lg leading-relaxed">
